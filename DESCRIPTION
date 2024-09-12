@@ -1,0 +1,57 @@
+Package: BulkRNAseq
+Type: Package
+Title: Tool-kit for bulk RNA sequencing data analysis
+Version: 0.1.0
+Authors@R: 
+  c(person(given = "Shivang",
+           family = "Sharma", 
+           role = c("aut", "cre"), 
+           email = "ssharm55@jhmi.edu", 
+           comment = ), 
+    person(given = "Eugene",
+           family = "Shenderov", 
+           role = c("aut", "ctb", "cph"), 
+           email = "Eugene.Shenderov@jhmi.edu"))
+Description: Tools for analyzing bulk RNA sequencing datafrom analyzing raw 
+    fastq files to downstream analyses like differential gene expression and GSEA
+URL: 
+BugReports: 
+Depends: 
+    R (>= 4.3.0)
+Imports: 
+    rstudioapi
+    AnnotationDbi
+    annotables
+    readxl
+    writexl
+    Matrix
+    tidyverse
+    data.table
+    mltools
+    RColorBrewer
+    crayon
+    ggplot2
+    plotly
+    ggrepel
+    reshape2
+    corrr
+    FactoMineR
+    ggcorrplot
+    factorextra
+    patchwork
+    BiocParallel
+    DESeq2
+    BiocGenerics
+    varhandle
+Suggests: 
+VignetteBuilder: knitr
+RoxygenNote: 7.3.1
+Roxygen: list(markdown = TRUE)
+Config/testthat/edition: 
+SystemRequirements: 
+Collate: 
+    rsem_to_rawcounts.R
+    
+License: MIT + file LICENSE | GPL (>= 3)
+Encoding: UTF-8
+LazyData: true

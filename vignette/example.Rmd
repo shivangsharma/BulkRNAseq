@@ -1,0 +1,108 @@
+Specify the directory containing the RSEM output of raw counts
+
+```{r}
+rsem_output_directory <- "/media/singhlab/B338-CE9D/Cell_line_RNAseq/data/RSEM_quantification"
+```
+
+Read all the samples present in RSEM output directory, into a list
+
+```{r}
+data_list <- read_rsem_samples(working_dir = rsem_output_directory, 
+                               sample_names = NA, 
+                               file_names = NA, 
+                               isoforms = FALSE)
+```
+
+Convert list of RSEM output files into a single data table containing the raw counts
+
+```{r}
+counts_data <- rsem_samples_list_to_data_table(data_list = data_list, 
+                                               isoforms = FALSE, 
+                                               counts_type = "expected_count") %>% as.data.table()
+```
+
+Convert ENSG IDs into gene symbols
+
+```{r}
+counts_data[, "id"] <- 
+  ensg_to_gene(id_vec = str_remove(string = counts_data[, "id"] %>% 
+                                     as.matrix() %>% 
+                                     as.vector(), 
+                                   pattern = "\\..*")
+               )
+```
+
+Simplify counts data by summing rows which have same gene symbols
+
+```{r}
+counts_data <- combine_duplicate_genes(counts_data)
+```
+
+Read metadata
+
+```{r}
+meta_data <- read_xlsx(path = "/media/singhlab/B338-CE9D/Cell_line_RNAseq/data/23257-01-Sample Key.xlsx")
+```
+
+Once the raw data has been read into correct format, we can move to the next step, which is quality check. i) Count distribution
+
+```{r}
+plot_density <- counts_distribution(counts_data = counts_data, 
+                                   meta_data = meta_data, 
+                                   category = "Groups", 
+                                   category_order = unique(meta_data[["Groups"]]))
+plot(plot_density)
+```
+
+ii) PCA plot
+
+```{r}
+
+```
+
+Normalization
+
+```{r}
+
+```
+
+Differential expression analysis
+
+```{r}
+mat_data <- counts_data[, -c("gene")] %>% as.matrix()
+rownames(mat_data) <- counts_data[["gene"]]
+comparison_variable <- "Treatment"
+factors_comparison_variable <- combn(x = meta_data[[comparison_variable]] %>% 
+                                       unique(), m = 2)
+plt <- list()
+for (cell_line in unique(meta_data$`Cell line`)) {
+  
+  for (comparison_col in c(1:ncol(factors_comparison_variable))) {
+    
+    comparison_name <- paste0(cell_line, "-", 
+                              factors_comparison_variable[1, comparison_col], 
+                              "_vs_", 
+                              factors_comparison_variable[2, comparison_col])
+    sprintf("Evaluating %s", comparison_name) %>% green() %>% message()
+    subset_indices <- which(meta_data$`Cell line` %in% cell_line)
+    mat_data_subset <- mat_data[, subset_indices]
+    meta_data_subset <- meta_data[subset_indices, ]
+    plt[[comparison_name]] <- run_deseq2(mat_data = mat_data_subset,
+               meta_data = meta_data_subset,
+               comparison_variable = comparison_variable,
+               factors_comparison_variable = factors_comparison_variable[, comparison_col])
+    
+  }
+  
+}
+```
+
+GSEA Analysis in standalone software
+
+```{r}
+# Prepare file for standalone software
+sample_names <- colnames(counts_data)[-c(1)] %>% as.vector()
+description <- grch38$description[match(counts_data$gene, grch38$symbol)]
+counts_data_gsea <- cbind(counts_data, description = description)
+counts_data_gsea <- counts_data_gsea[, c("gene", "description", sample_names)]
+```

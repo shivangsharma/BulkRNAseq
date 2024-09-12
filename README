@@ -1,0 +1,7 @@
+Tasks remaining:
+1. Write description about the input format of data and sample sheet
+2. Complete function for PCA plot
+3. Add parallel option to use kallisto instead of STAR-RSEM route
+4. Modify shell script to take arguments for fastq folder path
+5. Modify shell script to automatically detect samples by detecting all files
+ending in ".fastq.gz", followed by removing this extension
